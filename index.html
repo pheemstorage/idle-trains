@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Idle Trains" />
+  <meta name="theme-color" content="#DDEFFA" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2372B638'/%3E%3Crect x='7' y='6' width='18' height='18' rx='4' fill='%23FFFBF2'/%3E%3Crect x='10' y='9' width='12' height='7' rx='2' fill='%230EA5E9'/%3E%3Ccircle cx='12' cy='20' r='1.8' fill='%23F59E0B'/%3E%3Ccircle cx='20' cy='20' r='1.8' fill='%23F59E0B'/%3E%3C/svg%3E" />
+  <title>Idle Trains — Bangkok 3D Transit Tycoon</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.js",
+      "three/addons/": "./node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- 3D Toy-Train Bangkok Diorama Viewport -->
+  <div id="viewport"></div>
+
+  <!-- 3D-Projected Floating Station Pins & Baht Pops -->
+  <div id="world-overlays"></div>
+  <div id="floating-pops"></div>
+
+  <!-- Top Toy-Board HUD -->
+  <header id="top-hud">
+    <div class="hud-pill">
+      <div class="brand-block">
+        <span id="brand-icon"></span>
+        <div>
+          <div class="brand-title">IDLE TRAINS</div>
+          <div class="brand-sub">Bangkok Tycoon</div>
+        </div>
+      </div>
+      <div class="vault-block">
+        <span id="baht-icon"></span>
+        <div class="vault-numbers">
+          <span id="hud-money">฿2,800</span>
+          <span id="hud-rate">+฿0/s</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-pill clock-weather-pill">
+      <div class="clock-block">
+        <span id="clock-icon"></span>
+        <div class="clock-readout">
+          <div class="clock-top">
+            <span id="hud-day">Mon • Wk 1</span>
+            <span id="hud-time">07:30</span>
+          </div>
+          <span id="hud-phase" class="phase-pill rush">Morning Rush</span>
+        </div>
+      </div>
+
+      <div class="weather-block">
+        <span id="hud-weather-icon"></span>
+        <div class="weather-copy">
+          <span id="hud-weather-label">Sunny Heat</span>
+          <span id="hud-weather-next">Next: Breeze</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-pill right-pill">
+      <div class="sat-block" title="Network Passenger Satisfaction">
+        <span id="hud-sat-icon"></span>
+        <span id="hud-sat-val">100%</span>
+      </div>
+      <div class="rail-prog-mini" title="Bangkok Core Rail Completion (Unlocks EV Buses & Thailand Intercity)">
+        <span id="hud-progress-text">3/126 Rail</span>
+        <div class="mini-bar"><div id="hud-progress-fill"></div></div>
+      </div>
+      <button id="btn-sound" class="icon-square-btn" title="Mute / Unmute Sound (M)"></button>
+      <button id="btn-home-cam" class="icon-square-btn" title="Reset Camera Overview"></button>
+    </div>
+  </header>
+
+  <!-- Live Breakdown / Angry / Flood Alert Ribbon -->
+  <div id="alert-ribbon"></div>
+
+  <!-- Right Slide-In Station Neighborhood Inspector -->
+  <aside id="station-inspector" class="hidden" aria-label="Station Neighborhood Inspector">
+    <div class="drawer-topbar">
+      <span>Station Neighborhood</span>
+      <button id="inspector-close" class="close-btn" title="Close"></button>
+    </div>
+    <div id="inspector-body"></div>
+  </aside>
+
+  <!-- Bottom Toy-Box Action Dock -->
+  <nav id="bottom-dock" aria-label="Tycoon Tools">
+    <button id="dock-lines" class="dock-btn accent-green">
+      <span id="dock-lines-icon"></span>
+      <span class="dock-label">Lines & Fleet</span>
+    </button>
+    <button id="dock-import" class="dock-btn">
+      <span id="dock-import-icon"></span>
+      <span class="dock-label">Import Trains</span>
+    </button>
+    <button id="dock-ops" class="dock-btn">
+      <span id="dock-ops-icon"></span>
+      <span class="dock-label">Crew & Depot</span>
+    </button>
+    <button id="btn-world-mode" class="dock-btn accent-blue">
+      <span id="dock-intercity-icon"></span>
+      <span class="dock-label">Intercity</span>
+    </button>
+  </nav>
+
+  <!-- Toast Notification Stack -->
+  <div id="toast-stack"></div>
+
+  <!-- Center Modal (Lines / Import / Ops / Intercity / Settings) -->
+  <div id="modal-overlay" class="hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div id="modal-title"></div>
+        <button id="modal-close" class="close-btn" title="Close"></button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Welcome Back Offline Earnings Modal -->
+  <div id="offline-modal" class="hidden" role="dialog" aria-modal="true">
+    <div class="modal-card compact">
+      <div class="modal-head">
+        <div style="font-size:16px;font-weight:900;">Welcome Back, Transit Tycoon</div>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+        <div id="offline-body" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <button id="offline-claim-btn" class="toy-btn gold full">Collect Thai Baht</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

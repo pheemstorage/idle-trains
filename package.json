@@ -1,0 +1,16 @@
+{
+  "name": "idle-trains",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Idle Trains: Bangkok 3D Transit Tycoon",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "python3 -m http.server 8099"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.187.0"
+  }
+}
