@@ -23,9 +23,11 @@ function copyDir(src, dest) {
   }
 }
 
-// 1. Copy css/ and js/
+// 1. Copy css/, js/, icons/, and manifest.webmanifest
 copyDir(path.join(root, 'css'), path.join(dist, 'css'));
 copyDir(path.join(root, 'js'), path.join(dist, 'js'));
+copyDir(path.join(root, 'icons'), path.join(dist, 'icons'));
+fs.copyFileSync(path.join(root, 'manifest.webmanifest'), path.join(dist, 'manifest.webmanifest'));
 
 // 2. Copy self-hosted Three.js ESM runtime into dist/vendor/three/
 const vendorThree = path.join(dist, 'vendor', 'three');
